@@ -1,0 +1,144 @@
+/* EesyLoad Driver — glass design language
+   Load AFTER the inline stylesheet. Tokens + surfaces only. Logic unchanged. */
+
+:root{
+  --bg:#000000;
+  --s1:rgba(22,22,24,.78);
+  --s2:rgba(28,28,30,.72);
+  --s3:rgba(44,44,46,.65);
+  --s4:#3A3A3C;
+  --s5:#48484A;
+  --b:rgba(255,255,255,.12);
+  --b2:rgba(255,255,255,.08);
+  --w:#F5F5F7;
+  --g10:#EBEBED;
+  --g20:#D2D2D7;
+  --g40:rgba(245,245,247,.56);
+  --g60:rgba(245,245,247,.38);
+  --g80:rgba(245,245,247,.22);
+  --acc:#BB2235;
+  --acl:rgba(187,34,53,.16);
+  --acd:rgba(187,34,53,.24);
+  --grn:#BB2235;
+  --grnl:rgba(187,34,53,.12);
+  --grnd:rgba(187,34,53,.22);
+  --r:24px;
+  --r-sm:14px;
+  --r-lg:24px;
+  --shadow-cta:0 8px 24px rgba(187,34,53,.34);
+  --shadow-card:0 16px 48px rgba(0,0,0,.42);
+  --shadow-soft:0 6px 20px rgba(0,0,0,.28);
+  --shadow-elevated:0 18px 50px rgba(0,0,0,.45);
+}
+
+html,body,.phone{
+  background:#000 !important;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",system-ui,sans-serif !important;
+}
+
+.scr,.scr.on{background:transparent !important}
+
+.dh-sheet,
+.er-sheet,
+.dc-sheet,
+.td-card,
+.earn-hero,
+.payout-card,
+.level-card,
+.doc-card,
+.doc-upload,
+.user-card,
+.chat-hdr,
+.chat-bar,
+.offline-card,
+#status-card,
+.inp{
+  background:rgba(22,22,24,.72) !important;
+  backdrop-filter:blur(40px) saturate(190%);
+  -webkit-backdrop-filter:blur(40px) saturate(190%);
+  border:0.5px solid rgba(255,255,255,.12) !important;
+  box-shadow:0 16px 48px rgba(0,0,0,.4) !important;
+}
+
+.dh-sheet{
+  background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.35) 18%,rgba(0,0,0,.72) 100%) !important;
+  border:none !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+}
+
+.nav{
+  background:rgba(12,12,14,.72) !important;
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border-top:0.5px solid rgba(255,255,255,.1) !important;
+}
+
+.gbtn,
+.back,
+.online-pill,
+.uc-act,
+.dact,
+.qchip,
+.ptab{
+  background:rgba(22,22,24,.7) !important;
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border:0.5px solid rgba(255,255,255,.12) !important;
+  box-shadow:0 6px 20px rgba(0,0,0,.28) !important;
+}
+.ptab.on{background:rgba(255,255,255,.12) !important;color:var(--w) !important}
+
+.cta.grn,
+.payout-btn,
+.chat-send,
+.btn-accept{
+  background:linear-gradient(180deg,#D12B40,#BB2235) !important;
+  color:#fff !important;
+  border:0 !important;
+  box-shadow:0 8px 24px rgba(187,34,53,.34) !important;
+  border-radius:14px !important;
+}
+.cta.dark{
+  background:rgba(255,255,255,.08) !important;
+  color:var(--w) !important;
+  border:0.5px solid rgba(255,255,255,.12) !important;
+  box-shadow:none !important;
+}
+
+.ni i,.ni svg,.ri i,.dc-icon i,.doc-ic svg{color:rgba(245,245,247,.56) !important}
+.ni.on i,.ni.on svg,.ni.on .ni-l{color:#F5F5F7 !important}
+
+.dh-map,.er-map{filter:saturate(.85) brightness(.92)}
+.dh-top{padding-top:calc(10px + env(safe-area-inset-top))}
+.online-pill{border-radius:999px !important;height:36px;padding:0 12px}
+.online-dot.on{background:#30D158 !important;box-shadow:0 0 8px rgba(48,209,88,.5)}
+
+.earn-hero{margin:12px 12px 0 !important;border-radius:24px !important;padding:18px 16px 16px !important}
+.earn-hero-glow{display:none !important}
+.earn-hero-value{font-size:40px !important;letter-spacing:-.04em !important;font-weight:700 !important}
+
+.sec-lbl{
+  color:rgba(245,245,247,.38) !important;
+  font-size:12px !important;
+  font-weight:600 !important;
+  letter-spacing:.04em !important;
+  text-transform:uppercase;
+  padding:16px 16px 8px !important;
+}
+
+.er-sheet{border-radius:24px 24px 0 0 !important}
+.nav-pill{
+  background:rgba(22,22,24,.78) !important;
+  backdrop-filter:blur(24px);
+  border:0.5px solid rgba(255,255,255,.12) !important;
+}
+
+.inp{border-radius:14px !important;min-height:48px}
+.inp input,.inp select{background:transparent !important;color:#F5F5F7 !important}
+.reg-title,.docs-title,.earn-title,.td-title,.dp-n{letter-spacing:-.5px;font-weight:700 !important}
+.row{background:transparent !important}
+.ri{background:rgba(255,255,255,.06) !important;border:none !important}
+
+.msg.out .msg-bubble{background:rgba(187,34,53,.92) !important}
+.msg.in .msg-bubble{background:rgba(255,255,255,.08) !important;border:0.5px solid rgba(255,255,255,.1) !important}
