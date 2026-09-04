@@ -1,0 +1,8 @@
+{
+  "appId": "eesyload.delivery.driver",
+  "appName": "EesyLoad Driver",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

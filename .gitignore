@@ -1,0 +1,8 @@
+node_modules/
+android/app/build/
+android/.gradle/
+android/app/.cxx/
+ios/App/App/public/
+*.apk
+.DS_Store
+scripts/patches/
