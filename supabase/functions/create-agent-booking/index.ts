@@ -1,11 +1,21 @@
-import "@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "@supabase/server";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-export default {
-  fetch: withSupabase({ auth: "user" }, async (req, ctx) => {
-    const user = ctx.userClaims;
-    if (!user) return Response.json({ error: "Not signed in" }, { status: 401 });
-
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, apikey, content-type" } });
+  }
+  try {
+    const authHeader = req.headers.get("Authorization") || "";
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData.user) {
+      return Response.json({ error: "Not signed in" }, { status: 401 });
+    }
+    const user = userData.user;
     const body = await req.json();
     const pickup = body.pickup_address;
     const dropoff = body.dropoff_address;
@@ -14,29 +24,27 @@ export default {
     if (!pickup || !dropoff || !vehicleName) {
       return Response.json({ error: "Missing pickup, drop-off or vehicle" }, { status: 400 });
     }
-
-    const { data: vehicle, error: vErr } = await ctx.supabaseAdmin
-      .from("vehicle_types").select("id,name,base_price,per_km_rate")
-      .eq("active", true);
-    if (vErr) return Response.json({ error: vErr.message }, { status: 500 });
-    const match = (vehicle || []).find((v) => String(v.name).toLowerCase() === String(vehicleName).toLowerCase());
-
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    const { data: vehicles } = await admin.from("vehicle_types").select("id,name,base_price,per_km_rate").eq("active", true);
+    const match = (vehicles || []).find((v) => String(v.name).toLowerCase() === String(vehicleName).toLowerCase());
     let total = Number(body.total_fare) || 0;
     if (!total && match) total = Number(match.base_price) || 0;
-
-    const row = {
+    const row: Record<string, unknown> = {
       status: assign === "self" ? "accepted" : "pending",
       driver_id: assign === "self" ? user.id : null,
       pickup_address: pickup,
       dropoff_address: dropoff,
       vehicle_name: match ? match.name : vehicleName,
       total_fare: total,
-      notes: body.notes || null,
-      accepted_at: assign === "self" ? new Date().toISOString() : null,
     };
-
-    const { data, error } = await ctx.supabaseAdmin.from("bookings").insert(row).select().single();
+    if (assign === "self") row.accepted_at = new Date().toISOString();
+    const { data, error } = await admin.from("bookings").insert(row).select().single();
     if (error) return Response.json({ error: error.message }, { status: 400 });
     return Response.json({ booking: data });
-  }),
-};
+  } catch (e) {
+    return Response.json({ error: String(e) }, { status: 500 });
+  }
+});
