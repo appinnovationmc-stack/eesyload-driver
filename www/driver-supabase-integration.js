@@ -8,6 +8,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_ff0SBElpjzVkCaHyPHAYUQ_1sOCyRES';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const APPROVED_STATUSES = ['approved', 'active'];
+const SIGNED_URL_TTL_SEC = 60 * 60;
 
 function isApprovedStatus(status) {
   return APPROVED_STATUSES.includes(String(status || '').toLowerCase());
@@ -119,7 +120,7 @@ async function uploadDriverDocument(docType, file) {
   const path = `${user.id}/${docType}-${Date.now()}.${file.name.split('.').pop()}`;
   const { error: uploadError } = await sb.storage.from('driver-documents').upload(path, file);
   if (uploadError) throw uploadError;
-  const { data: urlData, error: signError } = await sb.storage.from('driver-documents').createSignedUrl(path, 60 * 60 * 24 * 30);
+  const { data: urlData, error: signError } = await sb.storage.from('driver-documents').createSignedUrl(path, SIGNED_URL_TTL_SEC);
   if (signError) throw signError;
   const { error } = await sb.from('driver_documents').insert({
     driver_id: user.id, doc_type: docType, file_url: urlData.signedUrl,
@@ -132,7 +133,7 @@ async function uploadDriverAvatar(file) {
   const path = `${user.id}/avatar-${Date.now()}.${file.name.split('.').pop()}`;
   const { error: uploadError } = await sb.storage.from('driver-avatars').upload(path, file);
   if (uploadError) throw uploadError;
-  const { data: urlData, error: signError } = await sb.storage.from('driver-avatars').createSignedUrl(path, 60 * 60 * 24 * 30);
+  const { data: urlData, error: signError } = await sb.storage.from('driver-avatars').createSignedUrl(path, SIGNED_URL_TTL_SEC);
   if (signError) throw signError;
   const { error } = await sb.from('profiles').update({ avatar_url: urlData.signedUrl }).eq('id', user.id);
   if (error) throw error;
@@ -144,7 +145,7 @@ async function uploadVehiclePhoto(file) {
   const path = `${user.id}/vehicle-${Date.now()}.${file.name.split('.').pop()}`;
   const { error: uploadError } = await sb.storage.from('vehicle-photos').upload(path, file);
   if (uploadError) throw uploadError;
-  const { data: urlData, error: signError } = await sb.storage.from('vehicle-photos').createSignedUrl(path, 60 * 60 * 24 * 30);
+  const { data: urlData, error: signError } = await sb.storage.from('vehicle-photos').createSignedUrl(path, SIGNED_URL_TTL_SEC);
   if (signError) throw signError;
   const { error } = await sb.from('profiles').update({ vehicle_photo_url: urlData.signedUrl }).eq('id', user.id);
   if (error) throw error;
@@ -190,16 +191,23 @@ async function updateDriverLocation(lat, lng, heading) {
 async function getPendingBookings(opts) {
   const driverVehicle = opts && opts.vehicleType;
   const excludeIds = (opts && opts.excludeIds) || [];
-  const { data, error } = await sb.from('bookings')
-    .select('*')
-    .eq('status', 'pending')
-    .is('driver_id', null)
-    .order('created_at', { ascending: false });
-  if (error) throw error;
-  return (data || []).filter((b) => {
-    if (excludeIds.includes(b.id)) return false;
-    return vehicleMatchesDriver(b.vehicle_name || b.vehicle, driverVehicle);
+  let lat = opts && opts.lat;
+  let lng = opts && opts.lng;
+  if (lat == null || lng == null) {
+    const user = await sbGetCurrentUser();
+    if (user) {
+      const { data: loc } = await sb.from('driver_locations').select('lat,lng').eq('driver_id', user.id).maybeSingle();
+      if (loc) { lat = loc.lat; lng = loc.lng; }
+    }
+  }
+  const { data, error } = await sb.rpc('pending_bookings_for_driver', {
+    p_vehicle: driverVehicle || null,
+    p_lat: lat != null ? Number(lat) : null,
+    p_lng: lng != null ? Number(lng) : null,
+    p_radius_km: (opts && opts.radiusKm) || 30
   });
+  if (error) throw error;
+  return (data || []).filter((b) => !excludeIds.includes(b.id));
 }
 
 function subscribeToIncomingBookings(onNewBooking, onStatusChange, onBookingUpdate) {
@@ -271,7 +279,7 @@ async function uploadDeliveryPhoto(bookingId, file) {
   const path = `${user.id}/${bookingId}-photo-${Date.now()}.${file.name.split('.').pop()}`;
   const { error: uploadError } = await sb.storage.from('delivery-photos').upload(path, file);
   if (uploadError) throw uploadError;
-  const { data: urlData, error: signError } = await sb.storage.from('delivery-photos').createSignedUrl(path, 60 * 60 * 24 * 30);
+  const { data: urlData, error: signError } = await sb.storage.from('delivery-photos').createSignedUrl(path, SIGNED_URL_TTL_SEC);
   if (signError) throw signError;
   const { error } = await sb.from('bookings').update({ delivery_photo_url: urlData.signedUrl }).eq('id', bookingId);
   if (error) throw error;
@@ -283,7 +291,7 @@ async function uploadDeliverySignature(bookingId, blob) {
   const path = `${user.id}/${bookingId}-signature-${Date.now()}.png`;
   const { error: uploadError } = await sb.storage.from('delivery-photos').upload(path, blob, { contentType: 'image/png' });
   if (uploadError) throw uploadError;
-  const { data: urlData, error: signError } = await sb.storage.from('delivery-photos').createSignedUrl(path, 60 * 60 * 24 * 30);
+  const { data: urlData, error: signError } = await sb.storage.from('delivery-photos').createSignedUrl(path, SIGNED_URL_TTL_SEC);
   if (signError) throw signError;
   const { error } = await sb.from('bookings').update({ delivery_signature_url: urlData.signedUrl }).eq('id', bookingId);
   if (error) throw error;
