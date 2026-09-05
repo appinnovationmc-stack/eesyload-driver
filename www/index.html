@@ -1904,7 +1904,7 @@ function uploadMissingDocs(){
 }
 
 /* ─── ONLINE TOGGLE (real dispatch via Supabase realtime) ── */
-async function toggleOnline(el){
+async async function toggleOnline(el){
   const dot=document.getElementById('odot');
   const txt=document.getElementById('otxt');
   const sc=document.getElementById('status-card');
@@ -2066,13 +2066,20 @@ function renderEnRoute(){
     if(actionBtn)actionBtn.textContent='Arrived at pickup';
   }
 }
-function handleErAction(){
+async function handleErAction(){
+  const load=DriverState.activeLoad;
   const phase=DriverState.erPhase||'pickup';
   if(phase==='pickup'){
+    if(load&&load.id){
+      try{await updateBookingStatus(load.id,'loading');}catch(e){console.error(e);alert(e.message);return;}
+    }
     DriverState.erPhase='dropoff';
     renderEnRoute();
     initEnRouteMap();
   }else{
+    if(load&&load.id){
+      try{await updateBookingStatus(load.id,'in_transit');}catch(e){console.error(e);alert(e.message);return;}
+    }
     go('deliveryConfirm');
   }
 }
@@ -2221,7 +2228,7 @@ async function saveSignature(){
   },'image/png');
 }
 
-async function completeDelivery(){
+async async function completeDelivery(){
   if(!DriverState.deliveryPhotoTaken){alert('Please take a delivery photo first.');return;}
   if(!DriverState.signatureCaptured){alert('Please capture the customer signature first.');return;}
   const load=DriverState.activeLoad;
