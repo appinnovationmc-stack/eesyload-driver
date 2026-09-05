@@ -2,6 +2,9 @@
   "appId": "eesyload.delivery.driver",
   "appName": "EesyLoad Driver",
   "webDir": "www",
+  "android": {
+    "useLegacyBridge": true
+  },
   "server": {
     "androidScheme": "https"
   }
