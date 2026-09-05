@@ -1,5 +1,4 @@
--- Server-side pending load filter: unassigned + optional vehicle + radius.
--- Uses pickup_lat/pickup_lng when present. If coords are missing, the row is still returned.
+-- Live function uses vehicle_name only (bookings.vehicle does not exist).
 CREATE OR REPLACE FUNCTION public.pending_bookings_for_driver(
   p_vehicle text DEFAULT NULL,
   p_lat double precision DEFAULT NULL,
@@ -23,8 +22,8 @@ BEGIN
     AND b.driver_id IS NULL
     AND (
       v = ''
-      OR lower(regexp_replace(coalesce(b.vehicle_name, b.vehicle, ''), '[^a-z0-9]+', '', 'g')) = v
-      OR lower(coalesce(b.vehicle_name, b.vehicle, '')) LIKE '%' || v || '%'
+      OR lower(regexp_replace(coalesce(b.vehicle_name, ''), '[^a-z0-9]+', '', 'g')) = v
+      OR lower(coalesce(b.vehicle_name, '')) LIKE '%' || v || '%'
     )
     AND (
       p_lat IS NULL OR p_lng IS NULL
