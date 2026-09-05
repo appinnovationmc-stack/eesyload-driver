@@ -1,11 +1,11 @@
-/* EesyLoad Driver — glass design language
-   Load AFTER the inline stylesheet. Tokens + surfaces only. Logic unchanged. */
+/* EesyLoad Driver — glass overlay
+   Hide mock device chrome. Force readable dark glass on every screen. */
 
-:root{
+html, html[data-theme="light"], html[data-theme="dark"], :root{
   --bg:#000000;
-  --s1:rgba(22,22,24,.78);
-  --s2:rgba(28,28,30,.72);
-  --s3:rgba(44,44,46,.65);
+  --s1:rgba(22,22,24,.82);
+  --s2:rgba(28,28,30,.78);
+  --s3:rgba(44,44,46,.72);
   --s4:#3A3A3C;
   --s5:#48484A;
   --b:rgba(255,255,255,.12);
@@ -13,9 +13,9 @@
   --w:#F5F5F7;
   --g10:#EBEBED;
   --g20:#D2D2D7;
-  --g40:rgba(245,245,247,.56);
-  --g60:rgba(245,245,247,.38);
-  --g80:rgba(245,245,247,.22);
+  --g40:rgba(245,245,247,.62);
+  --g60:rgba(245,245,247,.42);
+  --g80:rgba(245,245,247,.26);
   --acc:#BB2235;
   --acl:rgba(187,34,53,.16);
   --acd:rgba(187,34,53,.24);
@@ -29,97 +29,110 @@
   --shadow-card:0 16px 48px rgba(0,0,0,.42);
   --shadow-soft:0 6px 20px rgba(0,0,0,.28);
   --shadow-elevated:0 18px 50px rgba(0,0,0,.45);
+  color-scheme: dark;
 }
 
 html,body,.phone{
   background:#000 !important;
+  color:#F5F5F7 !important;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",system-ui,sans-serif !important;
 }
 
-.scr,.scr.on{background:transparent !important}
+.sb, .di, #sbtime, .sb-t, .sb-i{
+  display:none !important;
+  height:0 !important;
+  overflow:hidden !important;
+  pointer-events:none !important;
+}
 
-.dh-sheet,
-.er-sheet,
-.dc-sheet,
-.td-card,
-.earn-hero,
-.payout-card,
-.level-card,
-.doc-card,
-.doc-upload,
-.user-card,
-.chat-hdr,
-.chat-bar,
-.offline-card,
-#status-card,
-.inp{
-  background:rgba(22,22,24,.72) !important;
+.scr{background:transparent !important}
+
+.td-card, .earn-hero, .payout-card, .level-card,
+.doc-card, .doc-upload, .user-card, .chat-hdr, .chat-bar, .offline-card,
+#status-card, .inp, .er-sheet, .dc-sheet, .load-det, .route-prev,
+.big-earn, .bar-chart, .dst, .bfc-vchip, .bfc-radio,
+.docs-hdr, .dp-hdr, .alert-sheet, .td-earn-bar{
+  background:rgba(22,22,24,.78) !important;
   backdrop-filter:blur(40px) saturate(190%);
   -webkit-backdrop-filter:blur(40px) saturate(190%);
   border:0.5px solid rgba(255,255,255,.12) !important;
-  box-shadow:0 16px 48px rgba(0,0,0,.4) !important;
+  box-shadow:0 16px 40px rgba(0,0,0,.35) !important;
+  color:#F5F5F7 !important;
+}
+
+html[data-theme="light"] .offline-card,
+html[data-theme="light"] .route-prev,
+html[data-theme="light"] .doc-card,
+html[data-theme="light"] .td-card,
+html[data-theme="light"] .big-earn,
+html[data-theme="light"] .bar-chart,
+html[data-theme="light"] .payout-card,
+html[data-theme="light"] .load-det,
+html[data-theme="light"] .td-earn-bar,
+html[data-theme="light"] .inp,
+html[data-theme="light"] .doc-upload,
+html[data-theme="light"] .earn-hero,
+html[data-theme="light"] .dst,
+html[data-theme="light"] .docs-hdr,
+html[data-theme="light"] .dp-hdr,
+html[data-theme="light"] .level-card,
+html[data-theme="light"] .bfc-vchip{
+  background:rgba(22,22,24,.78) !important;
+  color:#F5F5F7 !important;
+  border:0.5px solid rgba(255,255,255,.12) !important;
 }
 
 .dh-sheet{
-  background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.35) 18%,rgba(0,0,0,.72) 100%) !important;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.4) 14%,rgba(0,0,0,.82) 100%) !important;
   border:none !important;
   box-shadow:none !important;
   backdrop-filter:none !important;
 }
 
 .nav{
-  background:rgba(12,12,14,.72) !important;
+  background:rgba(12,12,14,.78) !important;
   backdrop-filter:blur(28px) saturate(180%);
   -webkit-backdrop-filter:blur(28px) saturate(180%);
   border-top:0.5px solid rgba(255,255,255,.1) !important;
 }
 
-.gbtn,
-.back,
-.online-pill,
-.uc-act,
-.dact,
-.qchip,
-.ptab{
-  background:rgba(22,22,24,.7) !important;
+.gbtn, .back, .online-pill, .uc-act, .dact, .qchip, .ptab{
+  background:rgba(22,22,24,.72) !important;
   backdrop-filter:blur(24px);
   -webkit-backdrop-filter:blur(24px);
   border:0.5px solid rgba(255,255,255,.12) !important;
   box-shadow:0 6px 20px rgba(0,0,0,.28) !important;
+  color:#F5F5F7 !important;
 }
-.ptab.on{background:rgba(255,255,255,.12) !important;color:var(--w) !important}
+.ptab.on{background:rgba(255,255,255,.12) !important}
 
-.cta.grn,
-.payout-btn,
-.chat-send,
-.btn-accept{
+.cta.grn, .payout-btn, .chat-send, .btn-accept, .go-online-btn{
   background:linear-gradient(180deg,#D12B40,#BB2235) !important;
   color:#fff !important;
   border:0 !important;
   box-shadow:0 8px 24px rgba(187,34,53,.34) !important;
   border-radius:14px !important;
 }
-.cta.dark{
+.cta.dark, .btn-decline{
   background:rgba(255,255,255,.08) !important;
-  color:var(--w) !important;
+  color:#F5F5F7 !important;
   border:0.5px solid rgba(255,255,255,.12) !important;
   box-shadow:none !important;
 }
 
-.ni i,.ni svg,.ri i,.dc-icon i,.doc-ic svg{color:rgba(245,245,247,.56) !important}
-.ni.on i,.ni.on svg,.ni.on .ni-l{color:#F5F5F7 !important}
+.ni i, .ni svg, .ri i, .dc-icon i, .doc-ic, .doc-ic svg{color:rgba(245,245,247,.55) !important}
+.ni.on i, .ni.on svg, .ni.on .ni-l{color:#F5F5F7 !important}
 
-.dh-map,.er-map{filter:saturate(.85) brightness(.92)}
-.dh-top{padding-top:calc(10px + env(safe-area-inset-top))}
+.dh-map, .er-map{filter:saturate(.85) brightness(.92)}
 .online-pill{border-radius:999px !important;height:36px;padding:0 12px}
 .online-dot.on{background:#30D158 !important;box-shadow:0 0 8px rgba(48,209,88,.5)}
 
 .earn-hero{margin:12px 12px 0 !important;border-radius:24px !important;padding:18px 16px 16px !important}
 .earn-hero-glow{display:none !important}
-.earn-hero-value{font-size:40px !important;letter-spacing:-.04em !important;font-weight:700 !important}
+.earn-hero-value{font-size:40px !important;letter-spacing:-.04em !important;font-weight:700 !important;color:#F5F5F7 !important}
 
 .sec-lbl{
-  color:rgba(245,245,247,.38) !important;
+  color:rgba(245,245,247,.4) !important;
   font-size:12px !important;
   font-weight:600 !important;
   letter-spacing:.04em !important;
@@ -135,10 +148,54 @@ html,body,.phone{
 }
 
 .inp{border-radius:14px !important;min-height:48px}
-.inp input,.inp select{background:transparent !important;color:#F5F5F7 !important}
-.reg-title,.docs-title,.earn-title,.td-title,.dp-n{letter-spacing:-.5px;font-weight:700 !important}
-.row{background:transparent !important}
-.ri{background:rgba(255,255,255,.06) !important;border:none !important}
+.inp input, .inp select, textarea{
+  background:transparent !important;
+  color:#F5F5F7 !important;
+}
+.inp input::placeholder, textarea::placeholder{color:rgba(245,245,247,.35) !important}
 
-.msg.out .msg-bubble{background:rgba(187,34,53,.92) !important}
-.msg.in .msg-bubble{background:rgba(255,255,255,.08) !important;border:0.5px solid rgba(255,255,255,.1) !important}
+.reg-title, .docs-title, .earn-title, .td-title, .dp-n{
+  color:#F5F5F7 !important;
+  letter-spacing:-.5px;
+  font-weight:700 !important;
+}
+
+.row{background:transparent !important}
+.ri{
+  background:rgba(255,255,255,.06) !important;
+  border:none !important;
+  color:#F5F5F7 !important;
+}
+
+.dp-hdr, html[data-theme="light"] .dp-hdr{
+  background:linear-gradient(180deg,#141416 0%,#000 100%) !important;
+  padding-top:calc(20px + env(safe-area-inset-top)) !important;
+  box-shadow:none !important;
+}
+.dp-n, .dp-v{color:#F5F5F7 !important}
+.dst{border-radius:16px !important;padding:14px 10px !important}
+.dst .dsv, .be-val, .td-earn-total, .td-br-v{color:#F5F5F7 !important}
+
+.docs-hdr, html[data-theme="light"] .docs-hdr{
+  background:linear-gradient(180deg,#141416 0%,#000 100%) !important;
+  padding-top:calc(20px + env(safe-area-inset-top)) !important;
+  box-shadow:none !important;
+}
+.docs-hdr, .docs-hdr *{color:#F5F5F7 !important}
+
+.bfc-vchip, html[data-theme="light"] .bfc-vchip{
+  background:rgba(255,255,255,.06) !important;
+  color:rgba(245,245,247,.7) !important;
+  border:0.5px solid rgba(255,255,255,.1) !important;
+  box-shadow:none !important;
+}
+.bfc-vchip.on, html[data-theme="light"] .bfc-vchip.on{
+  background:rgba(187,34,53,.16) !important;
+  border-color:#BB2235 !important;
+  color:#F5F5F7 !important;
+}
+
+.td-hdr{padding-top:calc(16px + env(safe-area-inset-top)) !important}
+
+.msg.out .msg-bubble{background:rgba(187,34,53,.92) !important;color:#fff !important}
+.msg.in .msg-bubble{background:rgba(255,255,255,.08) !important;border:0.5px solid rgba(255,255,255,.1) !important;color:#F5F5F7 !important}
