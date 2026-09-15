@@ -1015,7 +1015,15 @@ footer .logo-svg{width:80px;height:auto;}
           <div class="sig-s">Tap to sign on screen</div>
         </div>
       </div>
-      <button class="cta grn" onclick="completeDelivery()" style="margin-bottom:12px;">Complete delivery</button>
+            <div id="cashCollectBanner" style="display:none;margin:0 0 14px;padding:14px 16px;border-radius:14px;background:rgba(6,193,103,.1);border:1px solid rgba(6,193,103,.35);">
+        <div style="font-size:13px;font-weight:700;color:var(--grn);letter-spacing:-.2px;margin-bottom:4px;">Cash on delivery</div>
+        <div style="font-size:12px;color:var(--g40);line-height:1.4;margin-bottom:10px;">Collect the full fare from the customer, then confirm below. Completing delivery will mark this cash payment as received.</div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="checkbox" id="cashCollectedCheck" style="width:18px;height:18px;accent-color:var(--grn);">
+          <span style="font-size:13px;font-weight:600;color:var(--w);">I collected the cash</span>
+        </label>
+      </div>
+<button class="cta grn" onclick="completeDelivery()" style="margin-bottom:12px;">Complete delivery</button>
       <div style="text-align:center;font-size:13px;color:var(--g60);padding:8px;cursor:pointer;" onclick="go('enRoute')">← Back to navigation</div>
     </div>
   </div>
@@ -1045,6 +1053,7 @@ footer .logo-svg{width:80px;height:auto;}
         <div style="width:64px;height:64px;border-radius:50%;background:var(--acl);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 40px rgba(187,34,53,.25);"><i class="ti ti-check" style="font-size:32px;color:var(--acc);"></i></div>
         <div style="font-size:28px;font-weight:700;color:var(--w);line-height:1.15;margin-bottom:8px;letter-spacing:-.6px;">Delivery complete</div>
         <div id="dsSubtitle" style="font-size:14px;color:var(--g60);letter-spacing:-.1px;">Load completed successfully</div>
+      <div id="dsCashNote" style="display:none;margin-top:8px;font-size:12px;font-weight:600;color:var(--grn);text-align:center;"></div>
       </div>
       <div style="padding:20px 22px 0;text-align:center;">
         <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--g60);margin-bottom:6px;">You earned</div>
@@ -2106,6 +2115,11 @@ function renderDeliveryConfirm(){
   const photoEl=document.getElementById('deliveryPhoto');
   const gpsEl=document.getElementById('deliveryGps');
   const sigEl=document.getElementById('deliverySig');
+  const cashBanner=document.getElementById('cashCollectBanner');
+  const cashCheck=document.getElementById('cashCollectedCheck');
+  const isCash=DriverState.activeLoad&&String(DriverState.activeLoad.payment_method||'')==='cash';
+  if(cashBanner)cashBanner.style.display=isCash?'block':'none';
+  if(cashCheck){cashCheck.checked=false;}
   const photoInput=document.getElementById('deliveryPhotoFile');
   if(photoInput)photoInput.value='';
   photoEl.style.borderColor='';photoEl.style.background='';
@@ -2236,6 +2250,14 @@ async function completeDelivery(){
   if(!DriverState.deliveryPhotoTaken){alert('Please take a delivery photo first.');return;}
   if(!DriverState.signatureCaptured){alert('Please capture the customer signature first.');return;}
   const load=DriverState.activeLoad;
+  const isCash=load&&String(load.payment_method||'')==='cash';
+  if(isCash){
+    const cashCheck=document.getElementById('cashCollectedCheck');
+    if(!cashCheck||!cashCheck.checked){
+      alert('Please confirm you collected the cash from the customer.');
+      return;
+    }
+  }
   if(load){
     try{
       await updateBookingStatus(load.id,'delivered');
@@ -2244,12 +2266,30 @@ async function completeDelivery(){
       alert('Could not mark delivery complete: '+e.message);
       return;
     }
+    if(isCash&&typeof confirmCashPayment==='function'){
+      try{
+        await confirmCashPayment(load.id);
+      }catch(e){
+        console.error('Cash confirm failed',e);
+        alert('Delivery saved, but cash confirmation failed: '+e.message+'
+You can retry from support if needed.');
+      }
+    }
   }
-  const payoutAmt=load?Math.round(load.total_fare*(1-load.commission_pct/100)):0;
-  document.getElementById('dsPayout').textContent='R'+payoutAmt;
-  document.getElementById('dsSubtitle').textContent=load?(load.pickup_address+' to '+load.dropoff_address):'Load completed';
-  document.getElementById('dsPickup').textContent=load?load.pickup_address:'—';
-  document.getElementById('dsDropoff').textContent=load?load.dropoff_address:'—';
+  const payoutAmt=load?Math.round(load.total_fare*(1-(load.commission_pct||0)/100)):0;
+  const dsPayout=document.getElementById('dsPayout');
+  const dsSubtitle=document.getElementById('dsSubtitle');
+  const dsPickup=document.getElementById('dsPickup');
+  const dsDropoff=document.getElementById('dsDropoff');
+  if(dsPayout)dsPayout.textContent='R'+payoutAmt;
+  if(dsSubtitle)dsSubtitle.textContent=load?(load.pickup_address+' to '+load.dropoff_address):'Load completed';
+  if(dsPickup)dsPickup.textContent=load?load.pickup_address:'—';
+  if(dsDropoff)dsDropoff.textContent=load?load.dropoff_address:'—';
+  const dsCashNote=document.getElementById('dsCashNote');
+  if(dsCashNote){
+    dsCashNote.style.display=isCash?'block':'none';
+    dsCashNote.textContent=isCash?'Cash collected and confirmed':'';
+  }
   DriverState.activeLoad=null;
   go('deliverySuccess');
 }
