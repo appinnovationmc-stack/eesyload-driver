@@ -593,6 +593,8 @@ footer .logo-svg{width:80px;height:auto;}
   --w:#F5F5F7; --g60:#8E8E93; --g40:#AEAEB2; --b:#2C2C2E; --s1:#1C1C1E; --s2:#2C2C2E; --s3:#3A3A3C;
   background:#1C1C1E !important;
 }
+.ob-terms{font-size:11px;color:var(--g60);text-align:center;margin-top:14px;line-height:1.6;}
+.ob-terms a{color:var(--acc);}
 </style>
 <link rel="stylesheet" href="glass.css">
 </head>
@@ -666,6 +668,7 @@ footer .logo-svg{width:80px;height:auto;}
     </div>
     <div style="padding:14px 20px 32px;background:linear-gradient(to top,#000 55%,transparent);">
       <button class="cta grn" onclick="submitDriverApplication()">Submit</button>
+      <div class="ob-terms">By submitting you agree to our <a href="legal/terms.html">Terms</a> (including independent contractor and payout terms) and <a href="legal/privacy.html">Privacy Policy</a></div>
     </div>
   </div>
 
@@ -1316,6 +1319,7 @@ footer .logo-svg{width:80px;height:auto;}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="driver-supabase-integration.js"></script>
+<script src="vehicle-icons.js"></script>
 <script src="driver-location.js"></script>
 <script>
 /* ─── DRIVER CHAT (real, Supabase-backed) ─────────────────────────── */
@@ -1904,7 +1908,7 @@ function uploadMissingDocs(){
 }
 
 /* ─── ONLINE TOGGLE (real dispatch via Supabase realtime) ── */
-async async function toggleOnline(el){
+async function toggleOnline(el){
   const dot=document.getElementById('odot');
   const txt=document.getElementById('otxt');
   const sc=document.getElementById('status-card');
@@ -2228,7 +2232,7 @@ async function saveSignature(){
   },'image/png');
 }
 
-async async function completeDelivery(){
+async function completeDelivery(){
   if(!DriverState.deliveryPhotoTaken){alert('Please take a delivery photo first.');return;}
   if(!DriverState.signatureCaptured){alert('Please capture the customer signature first.');return;}
   const load=DriverState.activeLoad;
@@ -2746,5 +2750,5 @@ function startErMap(){
 }
 
 </script>
-</body>
+<script src="driver-fare.js"></script><script src="map-style.js"></script><script src="driver-maps.js"></script><script src="driver-nav.js"></script><script src="store-hardening.js"></script><script src="payout-request.js"></script></body>
 </html>
