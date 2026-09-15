@@ -265,6 +265,26 @@ async function cancelBookingAsDriver(bookingId) {
   if (error) throw error;
 }
 
+/**
+ * Confirm physical cash collection for a cash booking.
+ * Calls the confirm-cash-payment edge function (only allows cash + assigned driver).
+ */
+async function confirmCashPayment(bookingId) {
+  const { data, error } = await sb.functions.invoke('confirm-cash-payment', {
+    body: { booking_id: bookingId },
+  });
+  if (error) {
+    let msg = error.message || 'Could not confirm cash payment';
+    try {
+      const ctx = await error.context.json();
+      if (ctx && ctx.error) msg = ctx.error;
+    } catch (e) {}
+    throw new Error(msg);
+  }
+  if (data && data.error) throw new Error(data.error);
+  return data;
+}
+
 async function getDriverEarnings() {
   const user = await sbGetCurrentUser();
   const { data, error } = await sb.from('bookings')
