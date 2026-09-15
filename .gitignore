@@ -6,3 +6,5 @@ ios/App/App/public/
 *.apk
 .DS_Store
 scripts/patches/
+keystore.properties
+.idea/

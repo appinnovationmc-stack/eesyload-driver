@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EesyLoad Driver</string>
+    <string name="title_activity_main">EesyLoad Driver</string>
+    <string name="package_name">eesyload.delivery.driver</string>
+    <string name="custom_url_scheme">eesyload.delivery.driver</string>
+</resources>
