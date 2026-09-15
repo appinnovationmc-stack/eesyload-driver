@@ -339,3 +339,59 @@ async function getBookingMessages(bookingId) {
   if (error) throw error;
   return data;
 }
+
+
+/* ─── SOCIAL AUTH (Uber-style) ───────────────────────────── */
+function authRedirectTo() {
+  try {
+    if (window.location && window.location.origin && window.location.origin !== 'null') {
+      return window.location.origin + window.location.pathname;
+    }
+  } catch (e) {}
+  return 'https://mbtqqnbklcltrtwlpduq.supabase.co';
+}
+
+async function sbSignInWithGoogle() {
+  const { data, error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: authRedirectTo(),
+      queryParams: { access_type: 'offline', prompt: 'consent' },
+    },
+  });
+  if (error) throw error;
+  return data;
+}
+
+async function sbSignInWithApple() {
+  const { data, error } = await sb.auth.signInWithOAuth({
+    provider: 'apple',
+    options: { redirectTo: authRedirectTo() },
+  });
+  if (error) throw error;
+  return data;
+}
+
+/** After OAuth, ensure driver profile exists (role=driver). */
+async function ensureDriverProfileFromSession() {
+  const user = await sbGetCurrentUser();
+  if (!user) return null;
+  const { data: existing } = await sb.from('profiles').select('id,role,full_name,driver_status').eq('id', user.id).maybeSingle();
+  if (!existing) {
+    const meta = user.user_metadata || {};
+    const name = meta.full_name || meta.name || '';
+    await sb.from('profiles').insert({
+      id: user.id,
+      role: 'driver',
+      full_name: name || null,
+      phone: user.phone || meta.phone || null,
+      driver_status: 'pending_review',
+      is_online: false,
+    });
+  } else if (existing.role !== 'driver') {
+    // Do not silently convert a rider account — ask them to use a different login
+    throw new Error('This account is registered as a rider. Use a different Google/Apple account for driving.');
+  }
+  return user;
+}
+
