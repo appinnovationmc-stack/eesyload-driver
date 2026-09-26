@@ -1011,6 +1011,14 @@ footer .logo-svg{width:80px;height:auto;}
       </div>
       <div class="dc-t">Delivery</div>
       <div class="dc-s">Take a photo of the delivered goods at the drop-off location and get the customer's signature.</div>
+      <div id="cashConfirmCard" style="display:none;background:var(--acl);border:1px solid rgba(187,34,53,.3);border-radius:14px;padding:14px 16px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="width:32px;height:32px;border-radius:9px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-cash" style="font-size:16px;color:#fff;"></i></div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--w);">Cash payment</div><div style="font-size:12px;color:var(--g60);">This load is paying by cash on delivery</div></div>
+        </div>
+        <div style="font-size:13px;color:var(--g40);margin-bottom:10px;">Collect <span id="cashAmountDue" style="font-weight:700;color:var(--w);">R0</span> from the customer before confirming.</div>
+        <button class="cta grn" id="confirmCashBtn" onclick="confirmCashReceived()" style="height:44px;font-size:14px;">Confirm cash received</button>
+      </div>
       <div class="photo-upload" id="deliveryPhoto" onclick="capturePhoto()">
         <div class="pu-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="var(--g60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="var(--g60)" stroke-width="2"/></svg></div>
         <div class="pu-t">Delivery photo</div>
@@ -2126,6 +2134,20 @@ async function cancelActiveLoad(){
 }
 
 function renderDeliveryConfirm(){
+  DriverState.cashConfirmed=false;
+  const cashCard=document.getElementById('cashConfirmCard');
+  const _cashLoadRDC=DriverState.activeLoad;
+  if(cashCard){
+    if(_cashLoadRDC&&_cashLoadRDC.payment_method==='cash'){
+      cashCard.style.display='block';
+      const amtEl=document.getElementById('cashAmountDue');
+      if(amtEl)amtEl.textContent='R'+Math.round(_cashLoadRDC.total_fare||0);
+      const cashBtn=document.getElementById('confirmCashBtn');
+      if(cashBtn){cashBtn.disabled=false;cashBtn.textContent='Confirm cash received';cashBtn.style.opacity='1';}
+    }else{
+      cashCard.style.display='none';
+    }
+  }
   const photoEl=document.getElementById('deliveryPhoto');
   const gpsEl=document.getElementById('deliveryGps');
   const sigEl=document.getElementById('deliverySig');
@@ -2155,6 +2177,22 @@ function renderDeliveryConfirm(){
   }
 }
 
+async function confirmCashReceived(){
+  const load=DriverState.activeLoad;
+  if(!load){alert('No active load.');return;}
+  const btn=document.getElementById('confirmCashBtn');
+  if(btn){btn.disabled=true;btn.textContent='Confirming\u2026';}
+  try{
+    const {error}=await sb.functions.invoke('confirm-cash-payment',{body:{booking_id:load.id}});
+    if(error)throw error;
+    DriverState.cashConfirmed=true;
+    if(btn){btn.textContent='Cash confirmed \u2713';btn.style.opacity='.7';}
+  }catch(e){
+    console.error('Could not confirm cash payment',e);
+    if(btn){btn.disabled=false;btn.textContent='Confirm cash received';}
+    alert('Could not confirm cash payment: '+(e.message||e));
+  }
+}
 function capturePhoto(){
   const input=document.getElementById('deliveryPhotoFile');
   if(!input)return;
@@ -2263,6 +2301,8 @@ async function saveSignature(){
 async function completeDelivery(){
   if(!DriverState.deliveryPhotoTaken){alert('Please take a delivery photo first.');return;}
   if(!DriverState.signatureCaptured){alert('Please capture the customer signature first.');return;}
+  const _cashLoad=DriverState.activeLoad;
+  if(_cashLoad&&_cashLoad.payment_method==='cash'&&!DriverState.cashConfirmed){alert('Please confirm cash received from the customer first.');return;}
   const load=DriverState.activeLoad;
   const isCash=load&&String(load.payment_method||'')==='cash';
   if(isCash){
