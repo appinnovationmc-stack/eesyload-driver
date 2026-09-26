@@ -2304,14 +2304,6 @@ async function completeDelivery(){
   const _cashLoad=DriverState.activeLoad;
   if(_cashLoad&&_cashLoad.payment_method==='cash'&&!DriverState.cashConfirmed){alert('Please confirm cash received from the customer first.');return;}
   const load=DriverState.activeLoad;
-  const isCash=load&&String(load.payment_method||'')==='cash';
-  if(isCash){
-    const cashCheck=document.getElementById('cashCollectedCheck');
-    if(!cashCheck||!cashCheck.checked){
-      alert('Please confirm you collected the cash from the customer.');
-      return;
-    }
-  }
   if(load){
     try{
       await updateBookingStatus(load.id,'delivered');
@@ -2319,15 +2311,6 @@ async function completeDelivery(){
       console.error(e);
       alert('Could not mark delivery complete: '+e.message);
       return;
-    }
-    if(isCash&&typeof confirmCashPayment==='function'){
-      try{
-        await confirmCashPayment(load.id);
-      }catch(e){
-        console.error('Cash confirm failed',e);
-        alert('Delivery saved, but cash confirmation failed: '+e.message+'
-You can retry from support if needed.');
-      }
     }
   }
   const payoutAmt=load?Math.round(load.total_fare*(1-(load.commission_pct||0)/100)):0;
