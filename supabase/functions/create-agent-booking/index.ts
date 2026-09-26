@@ -3,9 +3,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-// Map UI vehicle chips → DB vehicle_types.name
 const VEHICLE_ALIASES: Record<string, string[]> = {
   moto: ["moto", "motorbike", "bike", "motorcycle"],
   bakkie: ["bakkie", "pickup"],
