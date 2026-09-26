@@ -1444,7 +1444,12 @@ function filterTripsByPeriod(period){
 // functions expect (id/date/time/pickup/dropoff/vehicle/cargo/payout/etc).
 function _mapBookingToTrip(b){
   const d=new Date(b.delivered_at||b.created_at);
-  const commission=Math.round(b.total_fare*(b.commission_pct/100));
+  const isAgentFeeRow = b._earningRole === 'agent';
+  // Server-computed truth: driver_payout/commission_amount already account
+  // for the min-commission floor and, for pool-assigned agent bookings,
+  // the agent-fee deduction — don't recompute client-side.
+  const commission = isAgentFeeRow ? 0 : (b.commission_amount != null ? b.commission_amount : Math.round(b.total_fare*(b.commission_pct/100)));
+  const payout = isAgentFeeRow ? (b.agent_fee_amount||0) : (b.driver_payout != null ? b.driver_payout : b.total_fare-commission);
   return{
     id:b.id,
     deliveredAt:b.delivered_at||b.created_at,
@@ -1453,13 +1458,14 @@ function _mapBookingToTrip(b){
     pickup:b.pickup_address,
     dropoff:b.dropoff_address,
     vehicle:b.vehicle_name,
-    cargo:(b.addons&&b.addons[0]&&b.addons[0].name)||'General cargo',
+    cargo:isAgentFeeRow?'Agent fee':((b.addons&&b.addons[0]&&b.addons[0].name)||'General cargo'),
     addonPrice:b.addons_total||0,
     grossFare:b.total_fare,
     commission:commission,
-    payout:b.total_fare-commission,
+    payout:payout,
     customerRating:b.driver_rating||'—',
-    tip:b.tip||0
+    tip:b.tip_amount||0,
+    isAgentFee:isAgentFeeRow
   };
 }
 

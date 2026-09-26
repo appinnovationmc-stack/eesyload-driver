@@ -287,11 +287,23 @@ async function confirmCashPayment(bookingId) {
 
 async function getDriverEarnings() {
   const user = await sbGetCurrentUser();
-  const { data, error } = await sb.from('bookings')
+  const { data: driven, error: e1 } = await sb.from('bookings')
     .select('*').eq('driver_id', user.id).eq('status', 'delivered')
     .order('delivered_at', { ascending: false });
-  if (error) throw error;
-  return data;
+  if (e1) throw e1;
+
+  // Pool-assigned agent bookings this user created but someone else drove:
+  // they earn agent_fee_amount here, not driver_payout.
+  const { data: agentFees, error: e2 } = await sb.from('bookings')
+    .select('*').eq('agent_driver_id', user.id).eq('is_agent_booking', true)
+    .eq('status', 'delivered').neq('driver_id', user.id)
+    .order('delivered_at', { ascending: false });
+  if (e2) throw e2;
+
+  return [
+    ...(driven || []).map(b => ({ ...b, _earningRole: 'driver' })),
+    ...(agentFees || []).map(b => ({ ...b, _earningRole: 'agent' })),
+  ];
 }
 
 async function uploadDeliveryPhoto(bookingId, file) {
