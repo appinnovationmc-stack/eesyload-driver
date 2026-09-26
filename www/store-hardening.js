@@ -13,7 +13,7 @@
     host.appendChild(row);
   }
   function inject() {
-    const host = document.querySelector('#profile .msec') || document.getElementById('profile');
+    const host = document.querySelector('#dProfile .msec') || document.getElementById('dProfile');
     if (!host) return;
     addRow(host, 'Privacy policy', 'How we use your data and location', window.EESY_PRIVACY_URL);
     addRow(host, 'Support', 'appinnovationmc@gmail.com', window.EESY_SUPPORT_URL);
@@ -30,5 +30,5 @@
   }
   document.addEventListener('DOMContentLoaded', inject);
   const origGo = window.go;
-  if (origGo) window.go = function (id) { origGo(id); if (id === 'profile') inject(); };
+  if (origGo) window.go = function (id) { origGo(id); if (id === 'dProfile') inject(); };
 })();
