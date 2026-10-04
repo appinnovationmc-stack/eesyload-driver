@@ -1382,10 +1382,18 @@ async function _sendChat(text){
   if(!text)return;
   if(!DriverState.chatBookingId){alert('No active load to message the customer about.');return;}
   _appendChatMsg(text,true,new Date().toISOString());
+  let msgId=null;
   try{
-    await sendBookingMessage(DriverState.chatBookingId,text);
+    msgId=await sendBookingMessage(DriverState.chatBookingId,text);
   }catch(e){
     console.error('Failed to send message',e);
+    return;
+  }
+  try{
+    await bridgeMessageToCustomer(DriverState.chatBookingId,msgId,text);
+  }catch(e){
+    console.error('SMS bridge failed',e);
+    alert('Message saved, but the SMS to the customer was not sent: '+(e.message||e));
   }
 }
 function dSendMsg(chip){_sendChat(chip.textContent);}

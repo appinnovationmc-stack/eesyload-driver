@@ -332,9 +332,35 @@ async function uploadDeliverySignature(bookingId, blob) {
 
 async function sendBookingMessage(bookingId, body) {
   const user = await sbGetCurrentUser();
-  const { error } = await sb.from('booking_messages')
-    .insert({ booking_id: bookingId, sender_id: user.id, body });
+  const { data, error } = await sb.from('booking_messages')
+    .insert({ booking_id: bookingId, sender_id: user.id, sender_role: 'driver', body })
+    .select('id')
+    .single();
   if (error) throw error;
+  return data ? data.id : null;
+}
+
+async function bridgeMessageToCustomer(bookingId, messageId, body) {
+  const { data: bk, error: bkErr } = await sb.from('bookings')
+    .select('rider_id,customer_phone')
+    .eq('id', bookingId)
+    .maybeSingle();
+  if (bkErr) throw bkErr;
+  if (!bk || bk.rider_id) return { bridged: false };
+  if (!bk.customer_phone) throw new Error('No customer phone number on this booking');
+  const { data, error } = await sb.functions.invoke('send-customer-message', {
+    body: { booking_id: bookingId, message_id: messageId, body },
+  });
+  if (error) {
+    let msg = error.message || 'Could not send SMS to customer';
+    try {
+      const ctx = await error.context.json();
+      if (ctx && ctx.error) msg = ctx.error;
+    } catch (e) {}
+    throw new Error(msg);
+  }
+  if (data && data.error) throw new Error(data.error);
+  return { bridged: true };
 }
 
 function subscribeToBookingMessages(bookingId, onMessage) {
