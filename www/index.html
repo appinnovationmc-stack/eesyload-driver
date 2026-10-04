@@ -1777,7 +1777,8 @@ setTimeout(async()=>{
   const user=await sbGetCurrentUser();
   if(!user){go('phoneEntry');return;}
   const{data:profile}=await sb.from('profiles').select('driver_status,full_name,vehicle_type,vehicle_plate').eq('id',user.id).single();
-  if(!profile||!profile.full_name||!profile.vehicle_type){
+  if(!profile||!profile.full_name||!profile.vehicle_type||profile.driver_status==='incomplete'){
+    if(profile){const fill=(i,v)=>{const e=document.getElementById(i);if(e&&v)e.value=v;};fill('regName',profile.full_name);fill('regVehicleType',profile.vehicle_type);fill('regPlate',profile.vehicle_plate);fill('regPhone',user.phone);}
     go('register');
     return;
   }
