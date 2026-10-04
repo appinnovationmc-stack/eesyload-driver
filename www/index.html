@@ -1255,17 +1255,36 @@ footer .logo-svg{width:80px;height:auto;}
       <div class="rb"><div class="rt">Vehicle insurance</div><div class="rs" id="docStatus-insurance">Not uploaded</div></div>
       <div class="dc-status err" id="docBadge-insurance">Required</div>
     </div>
-    <div class="doc-card" id="docCard-identity" data-doctype="identity" onclick="handleDocCardClick('identity')">
+    <div class="doc-card" id="docCard-id_document" data-doctype="id_document" onclick="handleDocCardClick('id_document')">
       <div class="dc-icon err"><i class="ti ti-user" style="font-size:18px;color:var(--red);"></i></div>
-      <div class="rb"><div class="rt">Identity document</div><div class="rs" id="docStatus-identity">Not uploaded</div></div>
-      <div class="dc-status err" id="docBadge-identity">Required</div>
+      <div class="rb"><div class="rt">ID or passport</div><div class="rs" id="docStatus-id_document">Not uploaded</div></div>
+      <div class="dc-status err" id="docBadge-id_document">Required</div>
     </div>
+    <div class="doc-card" id="docCard-background_check" data-doctype="background_check" onclick="handleDocCardClick('background_check')">
+      <div class="dc-icon err"><i class="ti ti-shield-check" style="font-size:18px;color:var(--red);"></i></div>
+      <div class="rb"><div class="rt">Criminal record check</div><div class="rs" id="docStatus-background_check">Not uploaded</div></div>
+      <div class="dc-status err" id="docBadge-background_check">Required</div>
+    </div>
+    <div class="doc-card" id="docCard-avatar" data-doctype="avatar" onclick="handleDocCardClick('avatar')">
+      <div class="dc-icon err"><i class="ti ti-camera" style="font-size:18px;color:var(--red);"></i></div>
+      <div class="rb"><div class="rt">Profile photo</div><div class="rs" id="docStatus-avatar">Not uploaded</div></div>
+      <div class="dc-status err" id="docBadge-avatar">Required</div>
+    </div>
+    <div class="doc-card" id="docCard-vehicle_photo" data-doctype="vehicle_photo" onclick="handleDocCardClick('vehicle_photo')">
+      <div class="dc-icon err"><i class="ti ti-car" style="font-size:18px;color:var(--red);"></i></div>
+      <div class="rb"><div class="rt">Vehicle photo</div><div class="rs" id="docStatus-vehicle_photo">Not uploaded</div></div>
+      <div class="dc-status err" id="docBadge-vehicle_photo">Required</div>
+    </div>
+    <div class="sec-lbl" style="padding-top:20px;">Optional</div>
     <div class="doc-card" id="docCard-pdp_certificate" data-doctype="pdp_certificate" onclick="handleDocCardClick('pdp_certificate')">
       <div class="dc-icon err"><i class="ti ti-certificate" style="font-size:18px;color:var(--red);"></i></div>
-      <div class="rb"><div class="rt">PDP Certificate</div><div class="rs" id="docStatus-pdp_certificate">Required for goods transport</div></div>
-      <div class="dc-status err" id="docBadge-pdp_certificate">Upload required</div>
+      <div class="rb"><div class="rt">PDP Certificate</div><div class="rs" id="docStatus-pdp_certificate">Only for vehicles over 3,500 kg or dangerous goods</div></div>
+      <div class="dc-status err" id="docBadge-pdp_certificate">Optional</div>
     </div>
-    <input type="file" id="docUploadFile-identity" accept="image/*,.pdf" style="display:none;">
+    <input type="file" id="docUploadFile-id_document" accept="image/*,.pdf" style="display:none;">
+    <input type="file" id="docUploadFile-background_check" accept="image/*,.pdf" style="display:none;">
+    <input type="file" id="docUploadFile-avatar" accept="image/*" style="display:none;">
+    <input type="file" id="docUploadFile-vehicle_photo" accept="image/*" style="display:none;">
     <input type="file" id="docUploadFile-pdp_certificate" accept="image/*,.pdf" style="display:none;">
 
     <div style="padding:20px 16px 0;">
@@ -1696,15 +1715,26 @@ async function renderDocumentsScreen(){
     .eq('driver_id', user.id)
     .order('uploaded_at', { ascending: false });
   if(error){console.error(error);return;}
+  let prof=null;try{const r=await sb.from('profiles').select('avatar_url,vehicle_photo_url').eq('id',user.id).single();prof=r.data;}catch(e){}
   const latestByType = {};
   (docs||[]).forEach(d=>{ if(!latestByType[d.doc_type]) latestByType[d.doc_type]=d; });
+  if(!latestByType.id_document && latestByType.identity) latestByType.id_document=latestByType.identity;
 
-  ['license','vehicle_registration','insurance','identity','pdp_certificate'].forEach(docType=>{
+  ['license','vehicle_registration','insurance','id_document','background_check','avatar','vehicle_photo','pdp_certificate'].forEach(docType=>{
     const card = document.getElementById('docCard-'+docType);
     const statusEl = document.getElementById('docStatus-'+docType);
     const badgeEl = document.getElementById('docBadge-'+docType);
     const iconEl = card ? card.querySelector('.dc-icon') : null;
     if(!card||!statusEl||!badgeEl)return;
+    if(docType==='avatar'||docType==='vehicle_photo'){
+      const has=prof&&(docType==='avatar'?prof.avatar_url:prof.vehicle_photo_url);
+      statusEl.textContent=has?'Uploaded':'Not uploaded';
+      badgeEl.textContent=has?'Uploaded':'Required';
+      badgeEl.className='dc-status '+(has?'ok':'err');
+      if(iconEl)iconEl.className='dc-icon '+(has?'ok':'err');
+      card.style.borderColor=has?'rgba(6,193,103,.3)':'';
+      return;
+    }
     const doc = latestByType[docType];
     if(doc){
       statusEl.textContent = DOC_STATUS_LABELS[doc.status] || 'Uploaded';
@@ -1740,7 +1770,7 @@ function handleDocCardClick(docType){
   input.onchange = async ()=>{
     if(input.files && input.files[0]){
       try{
-        await uploadDriverDocument(docType, input.files[0]);
+        if(docType==='avatar'){await uploadDriverAvatar(input.files[0]);}else if(docType==='vehicle_photo'){await uploadVehiclePhoto(input.files[0]);}else{await uploadDriverDocument(docType, input.files[0]);}
         try{await finalizeDriverApplication();}catch(e){console.error(e);}
         await renderDocumentsScreen();
       }catch(e){
