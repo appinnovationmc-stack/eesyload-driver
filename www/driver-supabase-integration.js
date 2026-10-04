@@ -58,7 +58,7 @@ async function sbVerifyOtp(phone, token) {
   if (error) throw error;
   const { data: existing } = await sb.from('profiles').select('id').eq('id', data.user.id).single();
   if (!existing) {
-    await sb.from('profiles').insert({ id: data.user.id, role: 'driver', phone, driver_status: 'pending_review' });
+    await sb.from('profiles').insert({ id: data.user.id, role: 'driver', phone, driver_status: 'incomplete' });
   }
   return data.user;
 }
@@ -96,7 +96,7 @@ async function submitDriverApplicationToSupabase(name, vehicleType, plate) {
       full_name: name,
       vehicle_type: vehicleType,
       vehicle_plate: plate.toUpperCase(),
-      driver_status: 'pending_review',
+      driver_status: 'incomplete',
       is_online: false,
     });
     if (insertError) throw insertError;
@@ -107,8 +107,8 @@ async function submitDriverApplicationToSupabase(name, vehicleType, plate) {
     vehicle_type: vehicleType,
     vehicle_plate: plate.toUpperCase(),
   };
-  if (existing.driver_status === 'pending_review' || existing.driver_status === 'rejected') {
-    patch.driver_status = 'pending_review';
+  if (['incomplete', 'pending_review', 'rejected'].includes(existing.driver_status)) {
+    patch.driver_status = 'incomplete';
     patch.is_online = false;
   }
   const { error } = await sb.from('profiles').update(patch).eq('id', user.id);
@@ -129,27 +129,43 @@ async function uploadDriverDocument(docType, file) {
 }
 
 async function uploadDriverAvatar(file) {
+  if (!file) throw new Error('Profile photo missing');
   const user = await sbGetCurrentUser();
   const path = `${user.id}/avatar-${Date.now()}.${file.name.split('.').pop()}`;
   const { error: uploadError } = await sb.storage.from('driver-avatars').upload(path, file);
   if (uploadError) throw uploadError;
-  const { data: urlData, error: signError } = await sb.storage.from('driver-avatars').createSignedUrl(path, SIGNED_URL_TTL_SEC);
-  if (signError) throw signError;
-  const { error } = await sb.from('profiles').update({ avatar_url: urlData.signedUrl }).eq('id', user.id);
+  const { data: pub } = sb.storage.from('driver-avatars').getPublicUrl(path);
+  const { error } = await sb.from('profiles').update({ avatar_url: pub.publicUrl }).eq('id', user.id);
   if (error) throw error;
-  return urlData.signedUrl;
+  return pub.publicUrl;
 }
 
 async function uploadVehiclePhoto(file) {
+  if (!file) throw new Error('Vehicle photo missing');
   const user = await sbGetCurrentUser();
   const path = `${user.id}/vehicle-${Date.now()}.${file.name.split('.').pop()}`;
   const { error: uploadError } = await sb.storage.from('vehicle-photos').upload(path, file);
   if (uploadError) throw uploadError;
-  const { data: urlData, error: signError } = await sb.storage.from('vehicle-photos').createSignedUrl(path, SIGNED_URL_TTL_SEC);
-  if (signError) throw signError;
-  const { error } = await sb.from('profiles').update({ vehicle_photo_url: urlData.signedUrl }).eq('id', user.id);
+  const { data: pub } = sb.storage.from('vehicle-photos').getPublicUrl(path);
+  const { error } = await sb.from('profiles').update({ vehicle_photo_url: pub.publicUrl }).eq('id', user.id);
   if (error) throw error;
-  return urlData.signedUrl;
+  return pub.publicUrl;
+}
+
+async function getUploadedDocTypes() {
+  const user = await sbGetCurrentUser();
+  const { data, error } = await sb.from('driver_documents').select('doc_type').eq('driver_id', user.id);
+  if (error) throw error;
+  return (data || []).map(r => r.doc_type);
+}
+
+async function finalizeDriverApplication() {
+  const user = await sbGetCurrentUser();
+  const { error } = await sb.from('profiles')
+    .update({ driver_status: 'pending_review', is_online: false })
+    .eq('id', user.id)
+    .in('driver_status', ['incomplete', 'pending_review', 'rejected']);
+  if (error) throw error;
 }
 
 async function createAgentBooking({ customer_name, customer_phone, pickup_address, dropoff_address, vehicle, assign_mode, notes }) {

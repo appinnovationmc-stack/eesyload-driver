@@ -664,11 +664,36 @@ footer .logo-svg{width:80px;height:auto;}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="var(--g60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <input type="file" id="doc3file" accept="image/*,.pdf" style="display:none;">
         </div>
+        <div class="doc-upload" id="doc4" onclick="toggleDoc(this,'id_document')">
+          <div class="doc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--g60)" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="var(--g60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><div class="doc-t">ID or passport</div><div class="doc-s">SA ID, smart card or passport</div></div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="var(--g60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input type="file" id="doc4file" accept="image/*,.pdf" style="display:none;">
+        </div>
+        <div class="doc-upload" id="doc5" onclick="toggleDoc(this,'background_check')">
+          <div class="doc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--g60)" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="var(--g60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><div class="doc-t">Criminal record check</div><div class="doc-s">Police clearance or PostNet / Jetline / Huru certificate</div></div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="var(--g60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input type="file" id="doc5file" accept="image/*,.pdf" style="display:none;">
+        </div>
+        <div class="doc-upload" id="doc6" onclick="toggleDoc(this,'avatar')">
+          <div class="doc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--g60)" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="var(--g60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><div class="doc-t">Profile photo</div><div class="doc-s">Clear photo of your face</div></div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="var(--g60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input type="file" id="doc6file" accept="image/*" style="display:none;">
+        </div>
+        <div class="doc-upload" id="doc7" onclick="toggleDoc(this,'vehicle_photo')">
+          <div class="doc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--g60)" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="var(--g60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><div class="doc-t">Vehicle photo</div><div class="doc-s">Whole vehicle, number plate visible</div></div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="var(--g60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input type="file" id="doc7file" accept="image/*" style="display:none;">
+        </div>
+        <label style="display:flex;gap:10px;align-items:flex-start;margin-top:14px;color:var(--w);font-size:13px;line-height:1.4;"><input type="checkbox" id="regInsDecl" style="margin-top:2px;"><span>I confirm my vehicle insurance covers commercial delivery use.</span></label>
       </div>
     </div>
     <div style="padding:14px 20px 32px;background:linear-gradient(to top,#000 55%,transparent);">
       <button class="cta grn" onclick="submitDriverApplication()">Submit</button>
-      <div class="ob-terms">By submitting you agree to our <a href="legal/terms.html">Terms</a> (including independent contractor and payout terms) and <a href="legal/privacy.html">Privacy Policy</a></div>
+      <div class="ob-terms">By submitting you agree to our <a href="legal/terms.html">Terms</a> (including independent contractor and payout terms) and <a href="legal/privacy.html">Privacy Policy</a>. You consent to a criminal record check and to us processing the result under POPIA.</div>
     </div>
   </div>
 
@@ -1885,27 +1910,37 @@ async function submitDriverApplication(){
     alert('Please fill in all fields before submitting.');
     return;
   }
-  const docsUploaded=['doc1','doc2','doc3'].every(id=>document.getElementById(id).classList.contains('done'));
-  if(!docsUploaded){
-    alert('Please upload all required documents before submitting.');
+  const ids=['doc1','doc2','doc3','doc4','doc5','doc6','doc7'];
+  if(!ids.every(id=>document.getElementById(id).classList.contains('done'))){
+    alert('Please upload all 7 required documents before submitting.');
+    return;
+  }
+  const decl=document.getElementById('regInsDecl');
+  if(!decl||!decl.checked){
+    alert('Please confirm your insurance covers commercial delivery use.');
     return;
   }
   _otpOrigin='register';
+  window._regUploaded=window._regUploaded||{};
+  const pick=fid=>{const i=document.getElementById(fid);return i&&i.files&&i.files[0]?i.files[0]:null;};
   try{
     await ensureSignedIn(phone);
     await submitDriverApplicationToSupabase(name,vType,plate);
-    // Upload any files chosen during the doc steps
-    for(const[fid,docType]of[['doc1file','license'],['doc2file','vehicle_registration'],['doc3file','insurance']]){
-      const input=document.getElementById(fid);
-      if(input&&input.files&&input.files[0]){
-        await uploadDriverDocument(docType,input.files[0]);
-      }
+    const have=await getUploadedDocTypes();
+    for(const[fid,docType]of[['doc1file','license'],['doc2file','vehicle_registration'],['doc3file','insurance'],['doc4file','id_document'],['doc5file','background_check']]){
+      if(have.includes(docType))continue;
+      const f=pick(fid);
+      if(!f)throw new Error('Missing file for '+docType+'. Select it again.');
+      await uploadDriverDocument(docType,f);
     }
+    if(!window._regUploaded.avatar){await uploadDriverAvatar(pick('doc6file'));window._regUploaded.avatar=true;}
+    if(!window._regUploaded.vehicle){await uploadVehiclePhoto(pick('doc7file'));window._regUploaded.vehicle=true;}
+    await finalizeDriverApplication();
     alert('Application submitted! We will verify your documents within 24 hours.');
     go('dHome');
   }catch(e){
     console.error(e);
-    alert('Submission failed: '+e.message);
+    alert('Submission failed: '+e.message+'\nTap Submit again to retry. Files already uploaded are kept.');
   }
 }
 
