@@ -16,7 +16,7 @@
     const host = document.querySelector('#dProfile .msec') || document.getElementById('dProfile');
     if (!host) return;
     addRow(host, 'Privacy policy', 'How we use your data and location', window.EESY_PRIVACY_URL);
-    addRow(host, 'Support', 'appinnovationmc@gmail.com', window.EESY_SUPPORT_URL);
+    addRow(host, 'Support', 'support@eesyload.com', window.EESY_SUPPORT_URL);
   }
   const origOnline = window.setDriverOnline;
   if (typeof origOnline === 'function') {

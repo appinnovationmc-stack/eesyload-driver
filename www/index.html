@@ -2615,7 +2615,7 @@ async function requestAccountDeletion(){
     });
     if(error){
       console.error('Deletion request failed', error);
-      alert('Could not submit your deletion request: '+error.message+'. Please email privacy@eesyload.com instead.');
+      alert('Could not submit your deletion request: '+error.message+'. Please email support@eesyload.com instead.');
       return;
     }
     alert('Your deletion request has been submitted. It will be processed within 30 days. You will now be signed out.');
@@ -2625,7 +2625,7 @@ async function requestAccountDeletion(){
     location.reload();
   }catch(e){
     console.error('Deletion request error', e);
-    alert('Something went wrong: '+e.message+'. Please email privacy@eesyload.com instead.');
+    alert('Something went wrong: '+e.message+'. Please email support@eesyload.com instead.');
   }
 }
 
