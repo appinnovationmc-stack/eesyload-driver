@@ -2013,6 +2013,7 @@ async function toggleOnline(el){
   const txt=document.getElementById('otxt');
   const sc=document.getElementById('status-card');
   const goingOnline=!DriverState.online;
+  if(goingOnline){const okToGo=await checkCanGoOnline();if(!okToGo)return;}
   DriverState.online=goingOnline;
   dot.classList.toggle('on',goingOnline);
   txt.classList.toggle('on',goingOnline);
@@ -2020,7 +2021,7 @@ async function toggleOnline(el){
   try{
     await setDriverOnline(goingOnline);
   }catch(e){
-    console.error('Failed to update online status',e);
+    console.error('Failed to update online status',e);if(goingOnline){DriverState.online=false;dot.classList.remove('on');txt.classList.remove('on');txt.textContent='Offline';alert(e.message||'Could not go online');return;}
   }
   if(goingOnline){
     sc.innerHTML='<div style="padding:14px 16px;display:flex;align-items:center;gap:12px;"><div style="width:8px;height:8px;border-radius:50%;background:#30D158;box-shadow:0 0 8px rgba(48,209,88,.5);flex-shrink:0;"></div><div><div style="font-size:15px;font-weight:600;color:var(--w);letter-spacing:-.2px;">Online</div><div style="font-size:13px;color:var(--g60);margin-top:1px;letter-spacing:-.1px;">Listening for loads</div></div></div>';
@@ -2401,7 +2402,45 @@ async function completeDelivery(){
 }
 
 /* ─── HOME / EARNINGS / PROFILE RENDERING ── */
-function renderDriverHome(){
+async function getDriverStatusInfo(){
+  const user=await sbGetCurrentUser();
+  if(!user)return null;
+  const{data}=await sb.from('profiles').select('driver_status').eq('id',user.id).single();
+  const st=String((data&&data.driver_status)||'').toLowerCase();
+  const msgs={
+    pending_review:'Your application is under review. You can go online once approved.',
+    incomplete:'Your application is incomplete. Finish registration to go online.',
+    rejected:'Your application was rejected. Re-upload the rejected documents under Documents & verification.',
+    suspended:'Your account is suspended. Please contact support.',
+    banned:'Your account has been closed. Please contact support.'
+  };
+  const ok=(st==='active'||st==='approved');
+  return {status:st,ok:ok,message:ok?'':(msgs[st]||'Your account is not approved yet.')};
+}
+async function checkCanGoOnline(){
+  try{
+    const info=await getDriverStatusInfo();
+    if(info&&!info.ok){alert(info.message);refreshDriverStatusBanner();return false;}
+  }catch(e){console.error(e);}
+  return true;
+}
+async function refreshDriverStatusBanner(){
+  const sc=document.getElementById('status-card');
+  if(!sc||!sc.parentNode)return;
+  let b=document.getElementById('dhStatusBanner');
+  let info=null;
+  try{info=await getDriverStatusInfo();}catch(e){console.error(e);}
+  if(!info||info.ok){if(b)b.remove();return;}
+  if(!b){b=document.createElement('div');b.id='dhStatusBanner';sc.parentNode.insertBefore(b,sc);}
+  const bad=(info.status==='suspended'||info.status==='banned'||info.status==='rejected');
+  let btn='';
+  if(info.status==='rejected')btn='<button class="cta grn" style="margin-top:10px;" onclick="go(\'docs\')">Documents &amp; verification</button>';
+  else if(info.status==='incomplete')btn='<button class="cta grn" style="margin-top:10px;" onclick="go(\'register\')">Finish registration</button>';
+  else if(info.status==='suspended'||info.status==='banned')btn='<button class="cta grn" style="margin-top:10px;" onclick="window.open(\'https://admin.eesyload.com/support.html\',\'_blank\')">Contact support</button>';
+  b.style.cssText='margin:0 20px 12px;padding:14px 16px;border-radius:14px;background:var(--s1);border:1px solid '+(bad?'var(--red)':'rgba(255,159,10,.4)')+';';
+  b.innerHTML='<div style="font-size:14px;font-weight:600;color:var(--w);line-height:1.4;">'+info.message+'</div>'+btn;
+}
+function renderDriverHome(){try{refreshDriverStatusBanner();}catch(e){}
   const todayTrips=filterTripsByPeriod('today');
   const weekTrips=filterTripsByPeriod('week');
   const todayTotal=todayTrips.reduce((s,t)=>s+t.payout,0);
