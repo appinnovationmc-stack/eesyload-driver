@@ -154,9 +154,9 @@ async function uploadVehiclePhoto(file) {
 
 async function getUploadedDocTypes() {
   const user = await sbGetCurrentUser();
-  const { data, error } = await sb.from('driver_documents').select('doc_type').eq('driver_id', user.id);
+  const { data, error } = await sb.from('driver_documents').select('doc_type,status').eq('driver_id', user.id);
   if (error) throw error;
-  return (data || []).map(r => r.doc_type);
+  return (data || []).filter(r => r.status !== 'rejected').map(r => r.doc_type);
 }
 
 async function finalizeDriverApplication() {
