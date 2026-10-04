@@ -188,7 +188,8 @@ async function setDriverOnline(isOnline) {
   const profile = await getMyDriverProfile();
   if (!profile) throw new Error('Not signed in');
   if (isOnline && !isApprovedStatus(profile.driver_status)) {
-    throw new Error('Your account is still under review. You can go online once approved.');
+    const st = String(profile.driver_status || '').toLowerCase();
+    throw new Error(st === 'suspended' ? 'Your account is suspended. Please contact support.' : st === 'banned' ? 'Your account has been closed. Please contact support.' : st === 'rejected' ? 'Your application was rejected. Re-upload the rejected documents under Documents & verification.' : 'Your account is still under review. You can go online once approved.');
   }
   const { error } = await sb.from('profiles').update({ is_online: !!isOnline }).eq('id', profile.id);
   if (error) throw error;

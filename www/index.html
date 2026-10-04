@@ -1741,6 +1741,7 @@ function handleDocCardClick(docType){
     if(input.files && input.files[0]){
       try{
         await uploadDriverDocument(docType, input.files[0]);
+        try{await finalizeDriverApplication();}catch(e){console.error(e);}
         await renderDocumentsScreen();
       }catch(e){
         console.error(e);
@@ -2538,10 +2539,9 @@ async function requestAccountDeletion(){
     const {data:{user}} = await sb.auth.getUser();
     if(!user){alert('Could not verify your account. Please try again.');return;}
     const {data:profile} = await sb.from('profiles').select('full_name,phone').eq('id',user.id).single();
-    const {error} = await sb.from('deletion_requests').insert({
-      driver_id: user.id,
-      phone: profile?.phone || user.phone || null,
-      full_name: profile?.full_name || null
+    const {error} = await sb.from('account_deletion_requests').insert({
+      phone: profile?.phone || user.phone || 'unknown',
+      reason: 'In-app driver request. user_id='+user.id+'; name='+(profile?.full_name||'')
     });
     if(error){
       console.error('Deletion request failed', error);
