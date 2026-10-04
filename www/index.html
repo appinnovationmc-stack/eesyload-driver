@@ -2546,7 +2546,7 @@ function cashOutNow(){
   const trips=getTrips();
   const total=trips.reduce((s,t)=>s+t.payout,0);
   if(total<=0){alert('No available balance to cash out.');return;}
-  alert('Cash-out requires a linked bank account. Add one from your profile to enable instant payouts.');
+  alert('To request a payout we need your bank details on file. Please contact driver support from the Profile screen to add them.');
 }
 
 /* ─── DRIVER PROFILE ───────────────────── */
