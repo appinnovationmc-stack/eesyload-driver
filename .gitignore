@@ -8,3 +8,4 @@ ios/App/App/public/
 scripts/patches/
 keystore.properties
 .idea/
+supabase/.temp/
