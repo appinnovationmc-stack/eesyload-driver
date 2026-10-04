@@ -2513,7 +2513,7 @@ async function renderDriverProfile(){
   if(stats[2])stats[2].textContent=allTrips.length;
   const ratings=allTrips.filter(t=>t.customerRating&&t.customerRating!=='—').map(t=>parseFloat(t.customerRating));
   if(stats[1])stats[1].textContent=ratings.length?(ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(1):'—';
-  const earningsRow=document.querySelectorAll('.msec .rs')[3];
+  const earningsRow=([...document.querySelectorAll('.msec .row')].find(r=>{const t=r.querySelector('.rt');return t&&t.textContent.trim()==='Earnings history';})||document.createElement('div')).querySelector('.rs');
   if(earningsRow)earningsRow.textContent='R'+total+' total';
 }
 

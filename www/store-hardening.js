@@ -1,6 +1,6 @@
 (function () {
-  window.EESY_PRIVACY_URL = 'https://github.com/appinnovationmc-stack/eesyload-rider/blob/main/www/legal/privacy.html';
-  window.EESY_SUPPORT_URL = 'https://github.com/appinnovationmc-stack/eesyload-rider/blob/main/www/legal/support.html';
+  window.EESY_PRIVACY_URL = 'https://admin.eesyload.com/privacy.html';
+  window.EESY_SUPPORT_URL = 'https://admin.eesyload.com/support.html';
   function addRow(host, title, sub, href) {
     if (!host || document.getElementById('legal-' + title)) return;
     const row = document.createElement('div');
