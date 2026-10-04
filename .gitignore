@@ -9,3 +9,4 @@ scripts/patches/
 keystore.properties
 .idea/
 supabase/.temp/
+*.bak

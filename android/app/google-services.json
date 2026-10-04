@@ -1,0 +1,185 @@
+{
+  "project_info": {
+    "project_number": "1093561632245",
+    "firebase_url": "https://eesy-load-default-rtdb.firebaseio.com",
+    "project_id": "eesy-load",
+    "storage_bucket": "eesy-load.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1093561632245:android:bfe80d76c761440ed78cbc",
+        "android_client_info": {
+          "package_name": "com.eesyload.driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVjWM8ciSNUAyHyb8mzHNNcv7V7k5ALKA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1093561632245:android:7da0efc1427a473dd78cbc",
+        "android_client_info": {
+          "package_name": "com.eesyload.user"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVjWM8ciSNUAyHyb8mzHNNcv7V7k5ALKA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1093561632245:android:4b29a7ce822badc1d78cbc",
+        "android_client_info": {
+          "package_name": "eesy.load.driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVjWM8ciSNUAyHyb8mzHNNcv7V7k5ALKA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1093561632245:android:5ebd541b14bbd73dd78cbc",
+        "android_client_info": {
+          "package_name": "eesy.load.user"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVjWM8ciSNUAyHyb8mzHNNcv7V7k5ALKA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1093561632245:android:90ddfe7859f0e44bd78cbc",
+        "android_client_info": {
+          "package_name": "eesyload.delivery.driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVjWM8ciSNUAyHyb8mzHNNcv7V7k5ALKA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1093561632245:android:820c194ec97580b3d78cbc",
+        "android_client_info": {
+          "package_name": "eesyload.delivery.user"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVjWM8ciSNUAyHyb8mzHNNcv7V7k5ALKA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1093561632245-g483tao932j1jpgqffbk0g553g9jd0hg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

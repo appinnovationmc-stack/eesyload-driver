@@ -1380,6 +1380,7 @@ footer .logo-svg{width:80px;height:auto;}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="driver-supabase-integration.js"></script>
+<script src="driver-notify.js"></script>
 <script src="vehicle-icons.js"></script>
 <script src="driver-location.js"></script>
 <script>
@@ -1400,6 +1401,8 @@ function _appendChatMsg(body,isOut,iso){
   msgs.scrollTop=msgs.scrollHeight;
 }
 async function openDriverChat(){
+  const chatNameEl=document.querySelector('#dchat .chat-name');
+  if(chatNameEl)chatNameEl.textContent=DriverState.customerName||'Customer';
   const msgs=document.getElementById('dchatMsgs');
   if(msgs)msgs.innerHTML='';
   const bookingId=DriverState.activeLoad?DriverState.activeLoad.id:null;
@@ -1608,9 +1611,17 @@ async function initEnRouteMap(){
   function fetchRoute(originPos){
     if(!DriverState.activeLoad)return; // guard against the load being cancelled after this closure was created
     const phase=DriverState.erPhase||'pickup';
-    const dest=phase==='dropoff'?load.dropoff_address:load.pickup_address;
+    const destLat=phase==='dropoff'?load.dropoff_lat:load.pickup_lat;
+    const destLng=phase==='dropoff'?load.dropoff_lng:load.pickup_lng;
+    const destAddr=phase==='dropoff'?load.dropoff_address:load.pickup_address;
+    // Prefer stored coordinates over the raw address string: Directions
+    // accepts either, but geocoding a vague free-text address (agent
+    // bookings take plain text like "durban" with no autocomplete) is far
+    // less reliable than routing to a known lat/lng.
+    const hasCoords=destLat!=null&&destLng!=null;
+    const dest=hasCoords?{lat:Number(destLat),lng:Number(destLng)}:destAddr;
     if(!dest)return;
-    const destKey=phase+'|'+dest;
+    const destKey=phase+'|'+(hasCoords?destLat+','+destLng:destAddr);
     const svc=new google.maps.DirectionsService();
     svc.route({origin:originPos,destination:dest,travelMode:google.maps.TravelMode.DRIVING},(res,status)=>{
       if(status==='OK'){
@@ -1662,8 +1673,11 @@ async function initEnRouteMap(){
   }
   function routeToDestination(originPos){
     const phase=DriverState.erPhase||'pickup';
-    const dest=phase==='dropoff'?load.dropoff_address:load.pickup_address;
-    const destKey=dest?phase+'|'+dest:null;
+    const destLat=phase==='dropoff'?load.dropoff_lat:load.pickup_lat;
+    const destLng=phase==='dropoff'?load.dropoff_lng:load.pickup_lng;
+    const destAddr=phase==='dropoff'?load.dropoff_address:load.pickup_address;
+    const hasCoords=destLat!=null&&destLng!=null;
+    const destKey=(hasCoords||destAddr)?phase+'|'+(hasCoords?destLat+','+destLng:destAddr):null;
     if(!_enRouteSteps||destKey!==_enRouteDestKey){
       fetchRoute(originPos); // no route yet, or destination/phase changed — fetch fresh
     }else{
@@ -2119,11 +2133,19 @@ async function acceptLoad(){
   DriverState.signatureCaptured=false;
   DriverState.erPhase='pickup';
   DriverState.customerPhone=null;
+  DriverState.customerName=null;
   if(accepted.rider_id){
     try{
       const rider=await getRiderProfile(accepted.rider_id);
       DriverState.customerPhone=rider.phone||null;
+      DriverState.customerName=rider.full_name||null;
     }catch(e){console.error('Could not load customer contact info',e);}
+  }else{
+    // Agent bookings ("Book for someone") have no rider account — the
+    // customer's name/phone were typed in at creation and live on the
+    // booking row itself.
+    DriverState.customerPhone=accepted.customer_phone||null;
+    DriverState.customerName=accepted.customer_name||null;
   }
   go('enRoute');
 }
@@ -2157,6 +2179,8 @@ function renderEnRoute(){
   set('erAddons',(load.addons&&load.addons.map(a=>a.name).join(', '))||'None');
   set('erPayout','R'+payout);
   set('erCustomerRating',load.driver_rating||'—');
+  const custNameEl=document.querySelector('#enRoute .uc-n');
+  if(custNameEl)custNameEl.textContent=DriverState.customerName||'Customer';
   const phase=DriverState.erPhase||'pickup';
   const statusLbl=document.getElementById('erStatusLabel');
   const pickupLbl=document.getElementById('erToPickupLabel');
