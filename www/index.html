@@ -1813,12 +1813,13 @@ async function continueWithPhone(){
   try{
     const user=await ensureSignedIn(phone);
     btn.disabled=false;btn.textContent='Continue';
-    const{data:profile}=await sb.from('profiles').select('full_name,vehicle_type').eq('id',user.id).single();
-    if(profile&&profile.full_name&&profile.vehicle_type){
+    const{data:profile}=await sb.from('profiles').select('full_name,vehicle_type,vehicle_plate,driver_status').eq('id',user.id).single();
+    if(profile&&profile.full_name&&profile.vehicle_type&&profile.driver_status!=='incomplete'){
       go('dHome');
     }else{
-      const regPhoneEl=document.getElementById('regPhone');
-      if(regPhoneEl)regPhoneEl.value=phone;
+      const fill=(i,v)=>{const e=document.getElementById(i);if(e&&v)e.value=v;};
+      if(profile){fill('regName',profile.full_name);fill('regVehicleType',profile.vehicle_type);fill('regPlate',profile.vehicle_plate);}
+      fill('regPhone',phone);
       go('register');
     }
   }catch(e){
